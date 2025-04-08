@@ -1,0 +1,90 @@
+import logging
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Replace 'YOUR_BOT_TOKEN' with the token you get from BotFather
+BOT_TOKEN = 'YOUR_BOT_TOKEN'
+
+# Commands
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send a welcome message when the command /start is issued."""
+    welcome_message = """
+    Welcome to My Telegram Bot! 👋
+
+    I'm here to help you with various tasks. Here are my commands:
+    /start - Start the bot
+    /help - Show help information
+    /about - About this bot
+
+    Feel free to send me any message, and I'll try to respond!
+    """
+    await update.message.reply_text(welcome_message)
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send a help message when the command /help is issued."""
+    help_message = """
+    Help Section:
+
+    Commands:
+    /start - Start the bot
+    /help - Show this help message
+    /about - Learn more about the bot
+
+    Features:
+    - Respond to your messages
+    - Process commands
+    - Provide information
+
+    If you need assistance, just send a message!
+    """
+    await update.message.reply_text(help_message)
+
+async def about(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send information about the bot when the command /about is issued."""
+    about_message = """
+    About This Bot:
+
+    Name: My Telegram Bot
+    Version: 1.0
+    Developer: Your Name
+    Purpose: To assist and provide information
+
+    Powered by python-telegram-bot library
+    """
+    await update.message.reply_text(about_message)
+
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Echo the user message."""
+    user_message = update.message.text
+    await update.message.reply_text(f"You said: {user_message}")
+
+async def error(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Log Errors caused by Updates."""
+    logger.error('Update "%s" caused error "%s"', update, context.error)
+
+def main() -> None:
+    """Start the bot."""
+    # Create the Application and pass it your bot's token
+    application = Application.builder().token(BOT_TOKEN).build()
+
+    # Add command handlers
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("about", about))
+
+    # Add message handler
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+
+    # Add error handler
+    application.add_error_handler(error)
+
+    # Start the Bot
+    print('Bot is running...')
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
+
+if __name__ == '__main__':
+    main()
